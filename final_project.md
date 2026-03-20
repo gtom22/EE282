@@ -14,7 +14,7 @@ CellbyGene posts the UMAP of the whole object shown in figure 1, but since we ar
 
 <figure>
   <img src="plots/fig1.png" alt="Figure 1:"/>
-  <figcaption>Integrated UMAP from HBCA showing all of the cell types.</figcaption>
+  <figcaption>Figure 1: Integrated UMAP from HBCA showing all of the cell types.</figcaption>
 </figure>
 
 The full fibroblast analysis can be found in fibroblast_analysis.R and the immune analysis can be found in immune_analysis.R.
@@ -24,14 +24,14 @@ From the HBCA dataset, we take only the stromal cells for the first part of the 
 
 <figure>
   <img src="plots/fig2.png" alt="Figure 2:"/>
-  <figcaption>a) shows the fibroblast clusters at a resolution of 0.2, b) shows the split by patient for the subsetted fibroblasts, c) shows the label transferred fibroblasts.</figcaption>
+  <figcaption>Figure 2: a) shows the fibroblast clusters at a resolution of 0.2, b) shows the split by patient for the subsetted fibroblasts, c) shows the label transferred fibroblasts.</figcaption>
 </figure>
 
 Using the following paper, we want to classify cell states for the fibroblasts: Fibro-major, Fibro-SFRP4. Fibro-matrix and Fibro-prematrix (Nee 2023). For this I attempted to do a module score using the marker genes from the paper, however the transfer was too mixed within the fibroblast subcluster. I then transitioned my approach to a more supervised way of using scvi along with scArches (Lotfollahi 2022). scVI trains a variational autoencoder on the reference dataset to capture biological variation then I used scANVI to incorporate cell type labels to really separate out the latent space. Then I used scArches to take the pretrained weights and perform transfer learning to take the HBCA fibroblast cells and project them into the same latent space as the reference (Broustas 2024). Once this is complete, we can see the fibroblast cell states separate cleanly shown in figure 3. The scripts for this are first running scvi_scanvi_integration.py then label_transfer.py. Conversion between python representation of single cell objects (h5ad) and rds was done using SeuratDisk for conversion to h5ad and zellkonverter for conversion to rds. 
 
 <figure>
   <img src="plots/fig3.png" alt="Figure 3:"/>
-  <figcaption>a) shows the integration between reference (Nee et al. 2023) and query (HBCA fibroblasts) and b) shows the projection of the cell states. A similar approach was taken for the macrophage population as well.</figcaption>
+  <figcaption>Figure 3: a) shows the integration between reference (Nee et al. 2023) and query (HBCA fibroblasts) and b) shows the projection of the cell states. A similar approach was taken for the macrophage population as well.</figcaption>
 </figure>
 
 ### Differential Abundance Testing
@@ -44,7 +44,7 @@ We then have to find pre-CAFs from this in order to compare cell states down the
 
 <figure>
   <img src="plots/fig4.png" alt="Figure 4:"/>
-  <figcaption>Integrated UMAP with pre-CAF population being shown</figcaption>
+  <figcaption>Figure 4: Integrated UMAP with pre-CAF population being shown</figcaption>
 </figure>
 
 We can see a more distinct population of the pre-CAFs compared to the other cell states. Fibro-prematrix in Seurat UMAP looks different compared to the scvi representation, but it seems like fibro-major is mixed throughout which correlates as its the most abundant cell state that differentiates into other states. Fibro-matrix primarily outlines the cells, Fibro-prematrix is predominantly on the right side of the UMAP and Fibro-SFRP4 is mixed with the pre-CAFs.
@@ -53,7 +53,7 @@ We also test differential abundance of the different fibroblast cell states to o
 
 <figure>
   <img src="plots/fig5.png" alt="Figure 5:"/>
-  <figcaption>Milo beeswarm plot showing differential abundance</figcaption>
+  <figcaption>Figure 5: Milo beeswarm plot showing differential abundance</figcaption>
 </figure>
 
 We also test differential abundance of the different fibroblast cell states to observe which states are more differentially abundant in BRCA. We can see from figure 5 that fibro-major and fibro-matrix are pretty even across all conditions, but pre-CAFs are significantly enriched in BRCA carriers.
@@ -64,14 +64,14 @@ For this we create dot plots collecting the major genes literature (Broustas 201
 
 <figure>
   <img src="plots/fig6.png" alt="Figure 6:"/>
-  <figcaption>Dot Plot of gene expression for fibroblasts cell states for DNA damage response markers</figcaption>
+  <figcaption>Figure 6: Dot Plot of gene expression for fibroblasts cell states for DNA damage response markers</figcaption>
 </figure>
 
 We also wanted to look at the NF-kB axis. NF-κB is a transcription factor, which is activated in response to DNA damage. Its link to BRCA carriers is well described as NF-κB is an essential mediator of the chemoresistance typically seen in BRCA1-positive breast and ovarian cancers (Harte 2014). So we should see that NF-kB markers should be overexpressed in BRCA carriers and should correlate with DNA damage markers as an active regulator.  
 
 <figure>
   <img src="plots/fig7.png" alt="Figure 7:"/>
-  <figcaption>Dot Plot of gene expression for fibroblast cell states and NF-kB markers.</figcaption>
+  <figcaption>Figure 7: Dot Plot of gene expression for fibroblast cell states and NF-kB markers.</figcaption>
 </figure>
 
 
@@ -85,14 +85,14 @@ For the immune landscape, we isolate the macrophage population and module score 
 
 <figure>
   <img src="plots/fig8.png" alt="Figure 8:"/>
-  <figcaption>UMAP of macrophage transferred cell states.</figcaption>
+  <figcaption>Figure 8: UMAP of macrophage transferred cell states.</figcaption>
 </figure>
 
 We also test differential abundance of the different immune cell states to observe which states are more differentially abundant in BRCA. We can see from figure 9 that macro-m1-CCL, mono-classical and macro-m1 show a slight skew towards the controls, but there is more of a bulge in the control. This is quite unexpected as we assume that BRCA carriers are dealing with more DNA damage and their correlation with immune infiltration. However, these patients are healthy so it is also possible there is no immune infiltration in general and we can say in the BRCA carriers, the immune population is depleted as it skews towards the control.
 
 <figure>
   <img src="plots/fig9.png" alt="Figure 9:"/>
-  <figcaption>Milo beeswarm plot for the immune population.</figcaption>
+  <figcaption>Figure 9: Milo beeswarm plot for the immune population.</figcaption>
 </figure>
 
 We also test differential abundance of the different immune cell states to observe which states are more differentially abundant in BRCA. We can see from figure 9 that macro-m1-CCL, mono-classical and macro-m1 show a slight skew towards the controls, but there is more of a bulge in the control. This is quite unexpected as we assume that BRCA carriers are dealing with more DNA damage and their correlation with immune infiltration. However, these patients are healthy so it is also possible there is no immune infiltration in general and we can say in the BRCA carriers, the immune population is depleted as it skews towards the control.
@@ -104,14 +104,14 @@ We looked at exhaustion markers as well as immunosuppression markers to visualiz
 
 <figure>
   <img src="plots/fig10.png" alt="Figure 10:"/>
-  <figcaption>Violin plots of exhaustion markers across cell states.</figcaption>
+  <figcaption>Figure 10: Violin plots of exhaustion markers across cell states.</figcaption>
 </figure>
 
 We also look at ISG/IFN expression as well which are primarily interferon genes. We specifically use IFIT1, IFIT2, IFIT3, ISG15, OAS1, MX1. From figure 11, we see that  both BRCA carriers and non carriers have high expression, but there seems to be more of a trend upwards for higher expression for the carriers as seen in mDCs, macro-IFN and cDC2. THis suggests that these states are potentially activated by interferon signaling. 
 
 <figure>
   <img src="plots/fig11.png" alt="Figure 11:"/>
-  <figcaption>Violin plots of IFN markers across cell states.</figcaption>
+  <figcaption>Figure 11: Violin plots of IFN markers across cell states.</figcaption>
 </figure>
 
 Taking the full immune landscape into account, we believe that Macro-IFN and mDCs are the most active in BRCA carriers and the rest of the population is depleted needing further studies as to why.
