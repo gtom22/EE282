@@ -5,6 +5,7 @@ A common mutation that occurs in cancer is the BRCA1 mutation however, its role 
 We propose a single-cell analysis using R tools such as Seurat, MiloR and Monocle on the integrated human breast cancer atlas (iHBCA). Using these, would address some of the main questions in BRCA1 carriers and will be broken down into 2 sections: 1) Fibroblast subclustering and 2) immune landscape classification. The main questions we want to address for the fibroblasts are: Do preCAFs activate markers of the DNA damage response? Do preCAFs activate markers of NF-kB and the NF-kB DDR axis? For the immune landscape we want to answer: Do macrophages express exhaustion markers in BRCA1 mutation carriers? MDSCs? Neutrophils? macrophages etc? And what is their ISG/IFN expression in BRCA1 mutation carriers vs noncarriers? The single-cell dataset is publicly available here:
 https://cellxgene.cziscience.com/collections/48259aa8-f168-4bf5-b797-af8e88da6637. The external datasets used were for markers and updated data using our analysis on existing papers adressed in each section. Full analysis can be completed without re-running cellranger as that was used to enhance the results.
 
+All necessary code can be found in the project_scripts folder.
 
 ## Methods
 ### Preprocessing
