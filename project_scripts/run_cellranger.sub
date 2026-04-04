@@ -1,0 +1,88 @@
+#!/bin/bash
+
+#SBATCH --job-name=cell_ranger      ## Name of the job.
+#SBATCH -A dalawson_lab     ## account to charge
+#SBATCH -p standard          ## partition/queue name
+#SBATCH --nodes=1            ## (-N) number of nodes to use
+#SBATCH --ntasks=4           ## (-n) number of tasks to launch
+#SBATCH --cpus-per-task=5    ## number of cores the job needs
+#SBATCH --mem=50gb            # job memory
+#SBATCH --error=/share/crsp/lab/dalawson/prabhakg/cell_ranger_log/slurm_output/slurm-%J.err  ## error log file
+#SBATCH --output=/share/crsp/lab/dalawson/prabhakg/cell_ranger_log/slurm_output/slurm-%J.out ## output log file
+
+
+module load cellranger
+
+FASTQ_PATH=/share/crsp/lab/dalawson/share/volume2/shared2/FASTQ_files/Quy_fastq/Quy/ind1/epithelial/
+RESULT_PATH=/share/crsp/lab/dalawson/share/HBCA_updated_cellranger
+REF=/share/crsp/lab/dalawson/share/HBCA_Phase2/scRNAseq/Raw_sequences/Reference_sequences/refdata-gex-GRCh38-2020-A/
+
+SAMPLE="ind1_epithelial"
+
+WORKROOT=${TMPDIR:-/tmp}/$SLURM_JOB_ID
+mkdir -p "$WORKROOT"
+
+echo $(ls $FASTQ_PATH)
+
+FASTQ_RENAMED="${WORKROOT}/fastqs_${SAMPLE}"
+mkdir -p "$FASTQ_RENAMED"
+for file in "$FASTQ_PATH"/read-I2_si-*_lane-*.fastq.gz; do
+  [[ -e "$file" ]] || continue
+  base=$(basename "$file")
+  
+  # Skip NNNNNNNN and X
+  if [[ "$base" =~ "NNNNNNNN" || "$base" =~ "_si-X_" ]]; then
+    continue
+  fi
+  
+  # Extract barcode and lane
+  barcode=$(echo "$base" | sed -n 's/read-I2_si-\([^_]*\)_lane-.*/\1/p')
+  lane=$(echo "$base" | sed -n 's/.*_lane-\([0-9]*\)-.*/\1/p')
+  
+  key="${barcode}_${lane}"
+  barcodes_lanes[$key]=1
+done
+
+for key in "${!barcodes_lanes[@]}"; do
+  barcode=$(echo "$key" | cut -d'_' -f1)
+  lane=$(echo "$key" | cut -d'_' -f2)
+
+  echo "Processing barcode: $barcode, lane: $lane"
+
+  # Process each read type (I1, I2, RA)
+  for read_type in I1 I2 RA; do
+    # Chunk for memory purposes
+    chunks=("$FASTQ_PATH"/read-${read_type}_si-${barcode}_lane-${lane}-chunk-*.fastq.gz)
+
+    if [[ -e "${chunks[0]}" ]]; then
+      # Determine Cell Ranger read naming
+      cr_read="R1"  
+
+      # Cell Ranger format: SAMPLE_S1_L00X_R1_001.fastq.gz
+      output_name="${SAMPLE}_S1_L00${lane}_${cr_read}_001.fastq.gz"
+
+      # Concatenate all chunks in order
+      cat "${chunks[@]}" > "$FASTQ_RENAMED/$output_name"
+    fi
+  done
+done
+
+
+WORK="$WORKROOT/$SAMPLE"
+mkdir -p "$WORK"
+cd "$WORK"
+
+cellranger count \
+  --id="$SAMPLE" \
+  --fastqs="$FASTQ_RENAMED" \
+  --transcriptome="$REF" \
+  --sample="$SAMPLE" \
+  --create-bam=false \
+  --localcores=$SLURM_CPUS_PER_TASK \
+  --localmem=$(($SLURM_MEM_PER_NODE/1024)) \
+|| { echo "FAILED $SAMPLE"; exit 1; }
+
+mkdir -p "$RESULT_PATH/$SAMPLE/outs"
+rsync -av "$WORK/$SAMPLE/outs/" "$RESULT_PATH/$SAMPLE/outs/"
+
+rm -rf "$FASTQ_RENAMED"
